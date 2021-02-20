@@ -139,7 +139,13 @@ class System():
                     'Emin': -np.Inf ,
                     'Emax': np.Inf ,
                     'use_ws':True,
-                       }
+                    'sym_wann':False,
+                    'TR':False,
+                    'spin':True,
+                    'symbols':None,
+                    'positions':None,
+                    'proj':None
+                    }
 
         for param in self.default_parameters:
             if param in parameters:

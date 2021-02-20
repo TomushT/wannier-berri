@@ -27,6 +27,7 @@ from .__w90_files import EIG,MMN,CheckPoint,SPN,UHU
 from time import time
 import pickle
 from itertools import repeat
+from .__sym_wann import sym_wann
 
 class System_w90(System):
     """
@@ -115,6 +116,27 @@ class System_w90(System):
             del spn
  
         print ("time for FFT_q_to_R : {} s".format(timeFFT))
+        pickle.dump(self.AA_R,open("AA_R.pickle","wb"))
+        pickle.dump(self.HH_R,open("HH_R.pickle","wb"))
+        pickle.dump(self.iRvec,open("iRvec.pickle","wb"))
+
+        if self.sym_wann:
+            assert self.use_ws == False,'Please set use_ws = False when you use sym_wann'
+            if self.getAA: AA_R=self.AA_R
+            else: AA_R=None
+            if self.getBB: BB_R=self.BB_R
+            else: BB_R=None
+            if self.getCC: CC_R=self.CC_R
+            else: CC_R=None
+            if self.getSS: SS_R=self.SS_R
+            else: SS_R=None
+            sw=sym_wann(HH_R=self.HH_R,AA_R=AA_R,BB_R=BB_R,CC_R=CC_R,SS_R=SS_R,iRvec=self.iRvec,nRvec=self.nRvec,num_wann=self.num_wann,spin=self.spin,TR=self.TR,lattice=self.real_lattice,symbols=self.symbols,positions=self.positions,proj=self.proj)
+            sw_res=sw.symmetrize()
+            for X in ['HH_R','AA_R','BB_R','CC_R','SS_R','iRvec','nRvec']:
+                if hasattr(self,X) :
+                    vars(self)[X] = sw_res[X]
+            self.iRvec=np.array(self.iRvec,dtype=int)
+
         if  self.use_ws:
             for X in ['HH','AA','BB','CC','SS','FF']:
                 XR=X+'_R'
@@ -132,7 +154,7 @@ class System_w90(System):
     @property
     def NKFFT_recommended(self):
         return self.mp_grid
-
+    
     def wigner_seitz(self,mp_grid):
         ws_search_size=np.array([1]*3)
         dist_dim=np.prod((ws_search_size+1)*2+1)

@@ -47,21 +47,24 @@ class Data_K(System):
         self.nkptot = self.NKFFT[0]*self.NKFFT[1]*self.NKFFT[2]
         self.ksep = system.ksep
         ## TODO : create the plans externally, one per process 
-        self.fft_R_to_k=FFT_R_to_k(system.iRvec,self.NKFFT,self.num_wann,numthreads=npar if npar>0 else 1,lib=fftlib)
+        print('#####')
+        print('iRvec',np.shape(self.iRvec))
+        print('dK',np.shape(dK))
+        self.fft_R_to_k=FFT_R_to_k(self.iRvec,self.NKFFT,self.num_wann,numthreads=npar if npar>0 else 1,lib=fftlib)
         self.Emin=system.Emin
         self.Emax=system.Emax
-
-
         try:
             self.poolmap=multiprocessing.Pool(npar).map
 #            print ('created a pool of {} workers'.format(npar))
         except Exception as err:
 #            print ('failed to create a pool of {} workers : {}'.format(npar,err))
             self.poolmap=lambda fun,lst : [fun(x) for x in lst]
-        expdK=np.exp(2j*np.pi*system.iRvec.dot(dK))
+        expdK=np.exp(2j*np.pi*self.iRvec.dot(dK))
         self.dK=dK
- 
+
         self.HH_R=system.HH_R[:,:,:]*expdK[None,None,:]
+        print('HH_R',np.shape(system.HH_R))
+        print('AA_R',np.shape(system.AA_R))
         
         for X in ['AA','BB','CC','SS']:
             XR=X+'_R'
