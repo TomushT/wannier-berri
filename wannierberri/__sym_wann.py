@@ -7,6 +7,10 @@ np.set_printoptions(precision=4,threshold=np.inf,linewidth=500)
 
 
 class sym_wann():
+    # could you break this line?
+    # it is not obligatory to have every argument on a separate lines, 
+    # but you could write it as groups of similar arguments per lines
+    # also , it is a good idea to use spaces after commas .
     def __init__(self,HH_R=None,AA_R=None,BB_R=None,CC_R=None,SS_R=None,iRvec=None,nRvec=None,num_wann=None,spin=False,TR=True,lattice=None,symbols=None,positions=None,proj=None):
         self.HH_R = HH_R
         self.AA = False
@@ -29,10 +33,10 @@ class sym_wann():
         self.nRvec=nRvec
         self.num_wann=num_wann
         self.spin=spin
-        self.TR=TR
+        self.TR=TR   # do you ever use Time-reversal ???
         self.lattice = lattice
         self.orbital_dic = {"s":1,"p":3,"d":5,"f":7,"sp3":4,"sp2":3,"l=0":1,"l=1":3,"l=2":5,"l=3":7}	
-        projectiondic={}
+        projectiondic={}  #  alternatively : use defaultdic(lambda : "")  and the "if name in" statement is not needed
         self.wann_atom_info = []
         self.symbols_in=symbols
         self.positions_in=positions
@@ -49,15 +53,15 @@ class sym_wann():
             orb_op.append([])
             orb_ed.append([])
         orbital_index=0
-        for npro in range(len(self.proj)):
-            name = self.proj[npro].split(":")[0].split()[0]
+        for npro in range(len(self.proj)):   #  for proj in self.proj :
+            name = self.proj[npro].split(":")[0].split()[0] # proj.split(...
             orb = self.proj[npro].split(":")[1].strip('\n').split(';')
-            if name in projectiondic.keys():
+            if name in projectiondic.keys():    # or just " name in projectiondic "
                 projectiondic[name]=projectiondic[name]+orb			
             else:
-                newdic={name:orb}
-                projectiondic.update(newdic)
-            for atom in range(self.num_atom):
+                newdic={name:orb}              #
+                projectiondic.update(newdic)   # or just projectiondic[nema]=orb    
+            for atom in range(self.num_atom):   # better to name the loop index variable starting with "i", e.g. iatom
                 if self.symbols_in[atom] == name:
                     for orb_name in orb:
                         num_orb = orb_spin * self.orbital_dic[orb_name]
@@ -69,28 +73,28 @@ class sym_wann():
         for atom in range(self.num_atom):
             name = self.symbols_in[atom]
             if name in projectiondic.keys():
-                projection=projectiondic[name]	
+                projection=projectiondic[name]
                 num_wann_atom +=1
                 self.wann_atom_info.append((atom+1,self.symbols_in[atom],self.positions_in[atom],projection,orbital_index_list[atom],orb_op[atom],orb_ed[atom]))
         self.num_wann_atom = num_wann_atom
-        self.H_select=np.zeros((self.num_wann_atom,self.num_wann_atom,self.num_wann,self.num_wann),dtype=bool)
+        self.H_select=np.zeros((self.num_wann_atom,self.num_wann_atom,self.num_wann,self.num_wann),dtype=bool)  
         for atom_a in range(self.num_wann_atom):
             for atom_b in range(self.num_wann_atom):
-                orb_name_a = self.wann_atom_info[atom_a][3]
-                orb_name_b = self.wann_atom_info[atom_b][3]
-                orb_op_a = self.wann_atom_info[atom_a][-2]
+                orb_name_a = self.wann_atom_info[atom_a][3]   # this is hard to follow 
+                orb_name_b = self.wann_atom_info[atom_b][3]   # consider naking orb_name_a a liost of dictionaries 
+                orb_op_a = self.wann_atom_info[atom_a][-2]    # so that each property has a readable name (key) 
                 orb_op_b = self.wann_atom_info[atom_b][-2]
                 orb_ed_a = self.wann_atom_info[atom_a][-1]
                 orb_ed_b = self.wann_atom_info[atom_b][-1]
-                for oa in range(len(orb_name_a)):
+                for oa in range(len(orb_name_a)):    
                     for ob in range(len(orb_name_b)):
                         self.H_select[atom_a,atom_b,orb_op_a[oa]:orb_ed_a[oa],orb_op_b[ob]:orb_ed_b[ob]]=True
-        for i in range(self.num_wann_atom):
-            print(self.wann_atom_info[i])
+        for i in range(self.num_wann_atom):  # again : for info in self.wann_atom_info: print (info) 
+            print(self.wann_atom_info[i])    # avoin using range to iterate over lists (unless necessay). also use enumerate and zip , if needed.
 
     def findsym(self):
         def show_symmetry(symmetry):
-            for i in range(symmetry['rotations'].shape[0]):
+            for i in range(symmetry['rotations'].shape[0]):  #   for i,(rot,trans) in enumerate(zip( symmetry['rotations'] , symmetry['translations'] ) ): 
                 print("  --------------- %4d ---------------" % (i + 1))
                 rot = symmetry['rotations'][i]
                 trans = symmetry['translations'][i]
@@ -99,9 +103,12 @@ class sym_wann():
                     print("     [%2d %2d %2d]" % (x[0], x[1], x[2]))
                 print("  translation:")
                 print("     (%8.5f %8.5f %8.5f)" % (trans[0], trans[1], trans[2]))
-        atom_in=Atoms(symbols=self.symbols_in,cell=list(self.lattice),scaled_positions=self.positions_in,pbc=True)
+        atom_in=Atoms(symbols=self.symbols_in,cell=list(self.lattice),scaled_positions=self.positions_in,pbc=True)  
+# is Atoms used just to be passed to spglib?
+# spglib cal accept the "cell" as a tuple (lattice_vectors, reduced_atomic_positions, at_type_numbers)
+# see irrep code 
         print("[get_spacegroup]")
-        print("  Spacegroup of is %s." %spglib.get_spacegroup(atom_in))
+        print("  Spacegroup of is %s." %spglib.get_spacegroup(atom_in))  # spacegroup of what? 
         self.symmetry = spglib.get_symmetry(atom_in)
         self.nsymm = self.symmetry['rotations'].shape[0]
         show_symmetry(self.symmetry)
@@ -122,7 +129,7 @@ class sym_wann():
         x = sym.Symbol('x')
         y = sym.Symbol('y')
         z = sym.Symbol('z')
-        def ss(x,y,z): return 1+0*(x+y+z)
+        def ss(x,y,z): return 1+0*(x+y+z)    # optionally lambda-functions may be used here, like "ss = lambda x,y,z : 1+0*(x+y+z)
         def pz(x,y,z): return z
         def px(x,y,z): return x
         def py(x,y,z): return y
@@ -144,11 +151,14 @@ class sym_wann():
         orb_f = [fz3,fxz2,fyz2,fzx2_zy2,fxyz,fx3_3xy2,f3yx2_y3]
         orb_function_dic={'s':orb_s,'p':orb_p,'d':orb_d,'f':orb_f}
         orb_chara_dic={'s':[],'p':[z,x,y],'d':[z*z,x*z,y*z,x*x,x*y,y*y],'f':[z*z*z,x*z*z,y*z*z,z*x*x,x*y*z,x*x*x,y*y*y]}
+        #  all the stuff above does not depend on input parameters, but it is initialized at every call of this method
+        #  it is better to initialize it once and store in sopme structure ( class or dictionary )
+        #  As I understand, hybrid orbitals are not implemented yes, but cam be easily added, just by writing linear combinations, right? 
         orb_dim = self.orbital_dic[orb_symbol]
         orb_rot_mat = np.zeros((orb_dim,orb_dim),dtype=float)
-        xp = np.dot(np.linalg.inv(rot_glb)[0],np.transpose([x,y,z]))
-        yp = np.dot(np.linalg.inv(rot_glb)[1],np.transpose([x,y,z]))
-        zp = np.dot(np.linalg.inv(rot_glb)[2],np.transpose([x,y,z]))
+        xp = np.dot(np.linalg.inv(rot_glb)[0],np.transpose([x,y,z]))   #   could be written in one line ??
+        yp = np.dot(np.linalg.inv(rot_glb)[1],np.transpose([x,y,z]))   #   xp,yp,zp= np.linalg.inv(rot_glb).dot(np.transpose([x,y,z]))
+        zp = np.dot(np.linalg.inv(rot_glb)[2],np.transpose([x,y,z]))   # 
         rot_glb=np.array(list(rot_glb))
         OC = orb_chara_dic[orb_symbol]
         OC_len = len(OC)
@@ -182,7 +192,7 @@ class sym_wann():
                     subs.append(etmp.subs(OC[j],1).subs(OC[(j+1)%OC_len],0).subs(OC[(j+2)%OC_len],0).subs(OC[(j+3)%OC_len],0).subs(OC[(j+4)%OC_len],0).subs(OC[(j+5)%OC_len],0).subs(OC[(j+6)%OC_len],0))
                     if j == 0:
                         orb_rot_mat[0,i] = (subs[0]*sym.sqrt(15.0)).evalf()
-                    if j == 1:
+                    if j == 1:  # why not "elif" ?
                         orb_rot_mat[1,i] = (subs[1]*sym.sqrt(10.0)/2).evalf()
                     if j == 2:
                         orb_rot_mat[2,i] = (subs[2]*sym.sqrt(10.0)/2).evalf()
@@ -229,15 +239,18 @@ class sym_wann():
             dmat[0,1] = -np.exp(-(alpha-gamma)/2.0 * 1j) * np.sin(beta/2.0)
             dmat[1,0] =  np.exp( (alpha-gamma)/2.0 * 1j) * np.sin(beta/2.0)
             dmat[1,1] =  np.exp( (alpha+gamma)/2.0 * 1j) * np.cos(beta/2.0)
-        rot_orbital = self.rot_orb(orb_symbol,rot_sym_glb)
+            # an alternative way is here https://github.com/stepan-tsirkin/irrep/blob/c569ab17ec1f5c016340acacd4004742dc28e8b8/irrep/spacegroup.py#L52-L53
+            # one needs only the rotational axis and the  angle, the latter can have only few discrete values.
+        rot_orbital = self.rot_orb(orb_symbol,rot_sym_glb) # can this line be moved above "if self.spin:"
         if self.spin:
             rot_orbital = np.kron(rot_orbital,dmat)
             rot_imag = rot_orbital.imag
             rot_real = rot_orbital.real
-            rot_imag[abs(rot_imag) < 10e-6] = 0
-            rot_real[abs(rot_real) < 10e-6] = 0
+            rot_imag[abs(rot_imag) < 10e-6] = 0  # Why is this clean-up necessary ? 
+            rot_real[abs(rot_real) < 10e-6] = 0  # 
             rot_orbital = np.array(rot_real + 1j*rot_imag,dtype=complex)
         return rot_orbital
+
     def atom_rot_map(self,sym):
         wann_atom_positions = [self.wann_atom_info[i][2] for i in range(self.num_wann_atom)]
         rot_map=[]
@@ -298,6 +311,9 @@ class sym_wann():
             if self.BB: self.BB_R= self.Mat_trans(self.BB_R)
             if self.CC: self.CC_R= self.Mat_trans(self.CC_R)
             if self.SS: self.SS_R= self.Mat_trans(self.SS_R)
+        
+    # what is the point of having this fubction insiude the "symmetrize" ?
+    # anyway, it is a method of the class, and it can modify the properies of the object 
 
         def average_H(self,H_res,iRvec,keep_New_R=True):
             R_list = np.array(iRvec,dtype=int)
@@ -339,7 +355,7 @@ class sym_wann():
                                     if self.SS: SS_all[iR,atom_a,atom_b,self.H_select[atom_a,atom_b],:] = self.SS_R[self.H_select[rot_map[atom_a],rot_map[atom_b]],new_Rvec_index,:]
                                 else: 
                                     if new_Rvec in tmp_R_list:
-                                        bear=1
+                                        bear=1    # what is this for ?
                                     else:
                                         tmp_R_list.append(new_Rvec)		
                 for atom_a in range(self.num_wann_atom):
@@ -359,6 +375,8 @@ class sym_wann():
                                 if self.SS:
                                     SS_tmp = np.dot(np.dot(p_map_dagger[atom_a],SS_all[:,atom_a,atom_b,:,:,i]),p_map[atom_b])
                                     S_res[:,:,:,i] += SS_tmp.transpose(0,2,1)
+                           #  here you need to rotatye the vectors (with rotatin matrices in cartesian coordinate R) , 
+                           #  and to pseudo-vectors multiply by det (R) which is +1 for pure rotations and -1 for Inversion and mirrors
             
             if keep_New_R:
                 return  {'HH':H_res/self.nsymm,'AA':A_res/self.nsymm,'BB':B_res/self.nsymm,'CC':C_res/self.nsymm,'SS':S_res/self.nsymm},tmp_R_list
@@ -397,9 +415,9 @@ class sym_wann():
             SS_R_a = np.zeros((self.num_wann,self.num_wann,self.nRvec+nRvec_add,3),dtype=complex)
             SS_R_a[:,:,:self.nRvec]=XX_R_re1['SS']
             SS_R_a[:,:,self.nRvec:]=XX_R_re2['SS']
-            if self.spin:
+            if self.spin:   
                 self.SS_R = self.Mat_trans_back(SS_R_a)
-            else: self.SS_R = SS_R_a*1.0
+            else: self.SS_R = SS_R_a*1.0  # can we have the SS matrix in a scalar calculation ?
         if self.spin:
             self.HH_R = self.Mat_trans_back(HH_R_a)
         else:
@@ -409,8 +427,21 @@ class sym_wann():
         
         return {'HH_R':self.HH_R,'AA_R':self.AA_R,'BB_R':self.BB_R,'CC_R':self.CC_R,'SS_R':self.SS_R,'nRvec':self.nRvec,'iRvec':self.iRvec}
 
-
-
+### 
+### Generally, it is better to separate the code into two parts :
+### 1st you construct the transformation "scheme", i.e. :
+### which atom transforms into which, with what rotation matrices (p_map , p_map_dagger)
+### to which iRvec it transforme, what are new iRvec_add, etc. 
+### Then you write a function that actually symmetyryzes smth which may be 
+#      - scalar (Hamiltonian)
+#      - vector (AA,BB,CC,SS ....)
+#      - tensor ... (not needed so far, but in future may be easiuly generalized.
+#      for vectors, you just multiply them by rotation matrices (in the cartesian coordinates)
+#      the vector may be inversion-odd (true vector AA,BB) or inversion-even (pseudovector - SS, CC)
+#      (also TR-odd or TR-even, but you do not use TR so far)
+#       for pseudoverctor you just multiply it again by det(R) , which is -1 for operations involving inversion (Inversion and Mirrirs)
+#
+# thus the code will be shorter and clearer.
 
 
 

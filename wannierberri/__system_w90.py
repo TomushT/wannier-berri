@@ -120,6 +120,9 @@ class System_w90(System):
         pickle.dump(self.HH_R,open("HH_R.pickle","wb"))
         pickle.dump(self.iRvec,open("iRvec.pickle","wb"))
 
+
+####   This block should come after use_ws_dist
+
         if self.sym_wann:
             assert self.use_ws == False,'Please set use_ws = False when you use sym_wann'
             if self.getAA: AA_R=self.AA_R
