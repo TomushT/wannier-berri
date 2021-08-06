@@ -111,6 +111,7 @@ calculators_trans={
          'Der3E_fder23_ocean': fermiocean3.Der3E_fder2,
          'Hp3': fermiocean3.Hplus_der,
          'Hp': fermisea2.HplusTr,
+         'NIAHE': fermiocean3.NIAHE_fsurf,
          
          }
 
@@ -236,6 +237,7 @@ descriptions['Faraday'] = "Tensor tildeD(omega) describing the Faraday rotation 
 descriptions['opt_SHCryoo'] = "Ryoo's Optical spin Hall conductivity in hbar/e S/cm (PRB RPS19)"
 descriptions['opt_SHCqiao'] = "Qiao's Optical spin Hall conductivity in hbar/e S/cm (PRB QZYZ18)"
 descriptions['opt_shiftcurrent'] = "Nonlinear shiftcurrent in A/V^2 - see PRB 97, 245143 (2018)"
+descriptions['NIAHE'] = "Nonlinear intrinsic anomalous Hall conductivity"
 
 # omega - for optical properties of insulators
 # Efrmi - for transport properties of (semi)conductors

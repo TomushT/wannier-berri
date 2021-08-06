@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH -o job.out
+#SBATCH -J NIAHE
+#SBATCH --partition=s_standard
+#SBATCH --time=1:00:00
+#SBATCH --mem-per-cpu=MaxMemPerCPU
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+
+module purge
+module load tools/python/3.7
+python example.py

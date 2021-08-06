@@ -402,3 +402,72 @@ class DerMorb(Formula_ln):
 
     def ln(self,ik,inn,out):
         raise NotImplementedError()
+
+
+#############################
+###   positional         ####
+###   shift              ####
+#############################
+
+class Kln(Matrix_ln):
+    def __init__(self,data_K):
+        super(Kln,self).__init__(data_K.K)
+
+class Lln(Matrix_ln):
+    def __init__(self,data_K):
+        super(Lln,self).__init__(data_K.L)
+
+class G(Formula_ln):
+
+    def __init__(self,data_K):
+        r"""2 Re A^{a}_{ml} A^{b}_{ln} / (Em - El)"""
+        super(G,self).__init__(data_K)
+        self.A=Aln(data_K)
+        self.D=Dln(data_K)
+        self.K=Kln(data_K)
+        self.L=Lln(data_K)
+        self.ndim=2
+        self.Iodd=False  # Correct?
+        self.TRodd=False  # Correct?
+
+    def nn(self,ik,inn,out):
+        summ = np.zeros( (len(inn),len(inn),3,3),dtype=complex )
+
+        if self.internal_terms:
+            summ+= -np.einsum("mlc,lnd->mncd",self.L.nl(ik,inn,out)[:,:,:],self.D.ln(ik,inn,out)[:,:,:])
+
+        if self.external_terms:
+            summ+= np.einsum("mlc,lnd->mncd",self.K.nl(ik,inn,out)[:,:,:],self.A.ln(ik,inn,out)[:,:,:])
+            summ+= 1j*np.einsum("mlc,lnd->mncd",self.K.nl(ik,inn,out)[:,:,:],self.D.ln(ik,inn,out)[:,:,:])
+            summ+= 1j*np.einsum("mlc,lnd->mncd",self.L.nl(ik,inn,out)[:,:,:],self.A.ln(ik,inn,out)[:,:,:])
+
+        return 2.0*np.real(summ)
+
+    def ln(self,ik,inn,out):
+        raise NotImplementedError()
+
+
+class NIAHE(Formula_ln):
+
+    def __init__(self,data_K):
+        r"""v^a G^{bc} - v^b G^{ac}"""
+        super(NIAHE,self).__init__(data_K)
+        self.G=G(data_K)
+        self.V=Vln(data_K)
+        self.ndim=3
+        self.Iodd=True
+        self.TRodd=True
+
+    def nn(self,ik,inn,out):
+        summ = np.zeros( (len(inn),len(inn),3,3,3),dtype=complex )
+
+        for a in range(3):
+            for b in range(3):
+                for c in range(3):
+                    summ[:,:,a,b,c]+= np.einsum("ml,ln->mn",self.V.nn(ik,inn,out)[:,:,a],self.G.nn(ik,inn,out)[:,:,b,c])
+                    summ[:,:,a,b,c]+= -np.einsum("ml,ln->mn",self.V.nn(ik,inn,out)[:,:,b],self.G.nn(ik,inn,out)[:,:,a,c])
+
+        return summ
+
+    def ln(self,ik,inn,out):
+        raise NotImplementedError()

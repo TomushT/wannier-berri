@@ -1017,6 +1017,16 @@ class Data_K(System):
             print ("Shape of <{}> is {}".format(k,result[k].shape))
         return result
 
+## for positional shift
+    @lazy_property.LazyProperty
+    def K(self):
+        return self.A_Hbar*self.dEig_inv[:, :,:,None]
+    
+    @lazy_property.LazyProperty
+    def L(self):
+        return self.D_H*self.dEig_inv[:, :,:,None]
+
+
     @property
     def berry_dipole_findif(self):
         return self.fermiSurface_findif(self.Omega)

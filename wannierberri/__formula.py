@@ -2,7 +2,7 @@ import numpy as np
 import lazy_property
 from .__utility import  alpha_A,beta_A
 from numba import njit
-from numba.typed import List as NumbaList
+#from numba.typed import List as NumbaList
 
 #####################################################
 #####################################################
