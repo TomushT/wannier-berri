@@ -97,7 +97,7 @@ def niahe(model):
                 #quantities=["ahc"],
                 #quantities=["ahc","dos","cumdos"],
                 numproc=2,
-                adpt_num_iter=40,
+                adpt_num_iter=100,
                 adpt_fac = 2,
                 fftlib='fftw', #default.  alternative  option - 'numpy'
                 fout_name='cumnas_model',
