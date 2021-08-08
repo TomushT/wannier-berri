@@ -446,13 +446,41 @@ class G(Formula_ln):
     def ln(self,ik,inn,out):
         raise NotImplementedError()
 
+class G2(Formula_ln):
+
+    def __init__(self,data_K):
+        r"""2 Re A^{a}_{ml} A^{b}_{ln} / (En - El)"""
+        super(G2,self).__init__(data_K)
+        self.A=Aln(data_K)
+        self.D=Dln(data_K)
+        self.K=Kln(data_K)
+        self.L=Lln(data_K)
+        self.ndim=2
+        self.Iodd=False  # Correct?
+        self.TRodd=False  # Correct?
+
+    def nn(self,ik,inn,out):
+        summ = np.zeros( (len(inn),len(inn),3,3),dtype=complex )
+
+        if self.internal_terms:
+            summ+= -np.einsum("mlc,lnd->mncd",self.D.nl(ik,inn,out)[:,:,:],self.L.ln(ik,inn,out)[:,:,:])
+
+        if self.external_terms:
+            summ+= np.einsum("mlc,lnd->mncd",self.A.nl(ik,inn,out)[:,:,:],self.K.ln(ik,inn,out)[:,:,:])
+            summ+= 1j*np.einsum("mlc,lnd->mncd",self.A.nl(ik,inn,out)[:,:,:],self.L.ln(ik,inn,out)[:,:,:])
+            summ+= 1j*np.einsum("mlc,lnd->mncd",self.D.nl(ik,inn,out)[:,:,:],self.K.ln(ik,inn,out)[:,:,:])
+
+        return 2.0*np.real(summ)
+
+    def ln(self,ik,inn,out):
+        raise NotImplementedError()
 
 class NIAHE(Formula_ln):
 
     def __init__(self,data_K):
         r"""v^a G^{bc} - v^b G^{ac}"""
         super(NIAHE,self).__init__(data_K)
-        self.G=G(data_K)
+        self.G=G2(data_K)
         self.V=Vln(data_K)
         self.ndim=3
         self.Iodd=True

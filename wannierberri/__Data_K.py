@@ -493,7 +493,7 @@ class Data_K(System):
     @lazy_property.LazyProperty
     def dEig_inv(self):
         dEig_threshold=1.e-7
-        dEig=self.E_K[:,:,None]-self.E_K[:,None,:]
+        dEig=self.E_K[:,:,None]-self.E_K[:,None,:]*1.j*0.01
         select=abs(dEig)<dEig_threshold
         dEig[select]=dEig_threshold
         dEig=1./dEig
