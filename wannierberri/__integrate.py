@@ -210,6 +210,8 @@ for calc in calculators_trans:
 additional_parameters['Faraday']['homega'] = 0.0
 additional_parameters_description['Faraday']['homega'] = "frequency of light in eV (one frequency per calculation)"
 
+#additional_parameters['NIAHE']['elems'] = 0
+#additional_parameters_description['NIAHE']['elems'] = "components of the tensor"
 
 calculators=copy(calculators_trans)
 calculators.update(calculators_opt)

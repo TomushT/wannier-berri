@@ -475,16 +475,18 @@ class G2(Formula_ln):
     def ln(self,ik,inn,out):
         raise NotImplementedError()
 
+# TO DO: Remove tripple loop
 class NIAHE(Formula_ln):
 
-    def __init__(self,data_K):
+    def __init__(self,data_K,**parameters):
         r"""v^a G^{bc} - v^b G^{ac}"""
-        super(NIAHE,self).__init__(data_K)
+        super(NIAHE,self).__init__(data_K,**parameters)
         self.G=G2(data_K)
         self.V=Vln(data_K)
         self.ndim=3
         self.Iodd=True
         self.TRodd=True
+        #print(elems)
 
     def nn(self,ik,inn,out):
         summ = np.zeros( (len(inn),len(inn),3,3,3),dtype=complex )
@@ -492,10 +494,13 @@ class NIAHE(Formula_ln):
         for a in range(3):
             for b in range(3):
                 for c in range(3):
-                    summ[:,:,a,b,c]+= np.einsum("ml,ln->mn",self.V.nn(ik,inn,out)[:,:,a],self.G.nn(ik,inn,out)[:,:,b,c])
-                    summ[:,:,a,b,c]+= -np.einsum("ml,ln->mn",self.V.nn(ik,inn,out)[:,:,b],self.G.nn(ik,inn,out)[:,:,a,c])
+                    # only xyy and yxx components
+                    if ( (a==0 and b==1 and c==1) or (a==1 and b==0 and c==0) ):
+                        summ[:,:,a,b,c]+= np.einsum("ml,ln->mn",self.V.nn(ik,inn,out)[:,:,a],self.G.nn(ik,inn,out)[:,:,b,c])
+                        summ[:,:,a,b,c]+= -np.einsum("ml,ln->mn",self.V.nn(ik,inn,out)[:,:,b],self.G.nn(ik,inn,out)[:,:,a,c])
 
         return summ
 
     def ln(self,ik,inn,out):
         raise NotImplementedError()
+

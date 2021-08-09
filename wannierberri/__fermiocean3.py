@@ -104,9 +104,9 @@ def Der3E_fder2(data_K,Efermi,tetra=False,**parameters):
     return res
 
 
-def NIAHE_fsurf(data_K,Efermi,tetra=False):
+def NIAHE_fsurf(data_K,Efermi,tetra=False,**parameters):
     r"""nonlinear intrinsic anomalous Hall effect"""
-    formula = frml.NIAHE(data_K)
+    formula = frml.NIAHE(data_K,**parameters)
     res =  FermiOcean(formula,data_K,Efermi,tetra,fder=1)()
     return res
     
