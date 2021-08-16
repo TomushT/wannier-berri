@@ -210,8 +210,10 @@ for calc in calculators_trans:
 additional_parameters['Faraday']['homega'] = 0.0
 additional_parameters_description['Faraday']['homega'] = "frequency of light in eV (one frequency per calculation)"
 
-#additional_parameters['NIAHE']['elems'] = 0
-#additional_parameters_description['NIAHE']['elems'] = "components of the tensor"
+additional_parameters['NIAHE']['Eimag'] = 0.1
+additional_parameters_description['NIAHE']['Eimag'] = "small imaginary energy in eV"
+additional_parameters['NIAHE']['tetra'] = True
+additional_parameters_description['NIAHE']['tetra'] = "use tetrahedron method for integration"
 
 calculators=copy(calculators_trans)
 calculators.update(calculators_opt)

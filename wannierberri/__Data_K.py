@@ -493,10 +493,23 @@ class Data_K(System):
     @lazy_property.LazyProperty
     def dEig_inv(self):
         dEig_threshold=1.e-7
-        dEig=self.E_K[:,:,None]-self.E_K[:,None,:]+1j*0.001
+        dEig=self.E_K[:,:,None]-self.E_K[:,None,:]
         select=abs(dEig)<dEig_threshold
         dEig[select]=dEig_threshold
         dEig=1./dEig
+        dEig[select]=0.
+        return dEig
+
+    @lazy_property.LazyProperty
+    def dEig_inv_imag(self):
+        Eimag=0.001
+        #print(Eimag)
+        dEig_threshold=1.e-7
+        dEig=self.E_K[:,:,None]-self.E_K[:,None,:]
+        dEigImag=self.E_K[:,:,None]-self.E_K[:,None,:]+1j*Eimag
+        select=abs(dEig)<dEig_threshold
+        dEig[select]=dEig_threshold
+        dEig=1./dEigImag
         dEig[select]=0.
         return dEig
 
@@ -1016,15 +1029,6 @@ class Data_K(System):
                 result[k]=np.vstack([-wk*dataIO[k][...,None]*bk[...,:] for wk,bk in  zip(self.findif.wk,self.findif.bk_cart)])
             print ("Shape of <{}> is {}".format(k,result[k].shape))
         return result
-
-## for positional shift
-    @lazy_property.LazyProperty
-    def K(self):
-        return self.A_Hbar*self.dEig_inv[:, :,:,None]
-    
-    @lazy_property.LazyProperty
-    def L(self):
-        return self.D_H*self.dEig_inv[:, :,:,None]
 
 
     @property
